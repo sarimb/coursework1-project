@@ -1,0 +1,120 @@
+---
+title: "Forecasting Airline Passenger Demand"
+author: "Sarim Ali Baig"
+date: "March 2026"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
+    highlight: tango
+  pdf_document:
+    toc: true
+subtitle: A Time Series Analysis Project
+---
+ 
+```{r, echo=FALSE}
+# This code will display the QMUL logo at the top right of the page
+# Do not change this code
+htmltools::img(src = knitr::image_uri("images/QMlogo.png"),
+               alt = 'logo',
+               style = 'position:absolute; top:0; right:0; padding:10px; width:20%;')
+```
+<center>
+<img src="images/airplane.jpg" width="70%">
+</center>
+# Introduction- Why This? 
+In this project I am exploring the forecasting of a time series using Meta's Prophet. Forecasting passenger demand to travel is important in the aviation industry as it allows for correct planning, staffing and pricing. Having these forecasts can assist companies to make better decisions and allocation of resources. The aim is to analyse data, prior patterns and predict forecasts for any future passenger numbers, using the built in 'AirPassengers' dataset in R and then using Meta's Prophet forecasting model to analyse the data.
+
+# Data Overview
+
+The `AirPassengers` dataset contains monthly totals of international airline passengers from 1949 to 1960. The data is well suited for a forecasting using this analysis as the data is recorded monthly we can look out for any recurring seasonal patterns and trends.  
+
+```{r echo=FALSE}
+data_air <- AirPassengers
+start(data_air)
+end(data_air)
+frequency(data_air)
+```
+# Preparing data for Prophet
+
+In order to use Prophet the dataframe must consist of two columns: 'ds' for dates and 'y' for t
+
+```{r echo=FALSE}
+start_year <- start(data_air)[1]
+start_month <- start(data_air)[2]
+
+dates <- seq(
+  from = as.Date(paste(start_year, start_month, "01", sep = "-")),
+  by = "month",
+  length.out = length(data_air)
+)
+
+prophet_data <- data.frame(
+  ds = dates,
+  y = as.numeric(data_air)
+)
+
+head(prophet_data)
+```
+The data has now successfully been converted into the correct format to allow us to use Meta's Prophet model. The 'ds' column contains the monthly dates and the 'y' column contains the passenger totals. 
+
+# Exploratory Analysis
+
+Before fitting the forecasting model, it is useful to visualise the time series. This helps identify whether the data shows trend, seasonality, or any unusual behaviour.
+
+```{r echo=FALSE}
+plot(data_air,
+     main = "Monthly Airline Passengers Over Time",
+     ylab = "Number of Passengers",
+     xlab = "Year")
+```
+# Prophet Model
+
+We now fit a Prophet model to the passenger data in order to generate forecasts.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(prophet)
+model <- prophet(prophet_data)
+```
+The model has been successful and will automatically look out for any main trends and patterns within the series.
+
+# Forecasting
+
+Using the model from the prior section I generate forecasts for the next 24 months 
+
+```{r echo=FALSE}
+future <- make_future_dataframe(model, periods = 24, freq = "month")
+forecast <- predict(model, future)
+head(forecast[, c("ds", "yhat", "yhat_lower", "yhat_upper")])
+```
+The table above shows the predicted values 'yhat' together with the lower and upper uncertainty bounds. 
+
+# Forecast Plot
+
+We now visualise the prior airline passenger numbers combined with the future numbers obtained by the Prophet model, in the graph below. 
+
+```{r echo=FALSE}
+plot(model, forecast)
+```
+# Model Components
+
+We can also use Prophet to visualise the main long term trends and any seasonal trends. 
+
+```{r echo=FALSE}
+prophet_plot_components(model, forecast)
+```
+
+
+# Key Findings 
+
+From the analysis I have picked up on three key findings:
+1. From the data I can see a strong indication of seasonality, there are regular peaks and troughs repeating around the same periods each year. 
+2. The Prophet forecast shows that passenger demand would continue to rise as it has done from the past data and the future follows those trends.
+3. The number of airline passengers indicate a upward trend across the sample period.
+
+The results and findings prove that Prophet can depict growth and seasonality in this data.
+
+# Limitations and Conclusion
+
+This project successfully shows that Prophet can be used to model and forecast airline passenger demand. The model performs well as it clearly shows a clear trend and seasonal structure in the data. However, the data does not take into account external factors such as, fuel costs, policy changes or economical changes. Overall, the project demonstrates well how modern tools can be used in time series analysis in a practical way.

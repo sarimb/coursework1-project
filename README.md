@@ -18,8 +18,8 @@ This project uses Meta’s Prophet model in R to analyse and forecast airline pa
 
 ## Live Project
 
-👉 https://yourusername.github.io/airline-forecast-project/
-
+👉 [https://yourusername.github.io/airline-forecast-project/
+](https://sarimb.github.io/coursework1-project/)
 ## Author
 
 Sarim Ali Baig
